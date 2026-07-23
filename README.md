@@ -28,6 +28,11 @@ needed, everything (including the engine) runs on your own machine.
 - **Game Review** — analyze the whole game with one click: accuracy % for
   each side, a breakdown of move quality, and clickable "key moments" that
   jump to your biggest mistakes with the move you should have played.
+- **Tactics from your own mistakes** — after a review, "Train these mistakes"
+  turns every blunder into a "find the best move" puzzle from the exact
+  position you got wrong. Your move is checked against the engine (the best
+  move *and* any equally good alternative count), with try-again, reveal, and
+  a solved counter.
 - **Position setup / board editor** — click "Set up position" to place pieces
   freely (piece palette, eraser, side to move, castling rights), then "Lock in
   & play" to continue a normal game from that position — with suggestions,

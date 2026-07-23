@@ -733,6 +733,78 @@ button {
   margin-top: 8px;
 }
 
+.review-train {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* ---------- puzzle trainer ---------- */
+
+.puzzle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.puzzle-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.puzzle-count {
+  font-weight: 800;
+  color: var(--text-bright);
+}
+
+.puzzle-score {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.puzzle-head .btn {
+  margin-left: auto;
+}
+
+.puzzle-prompt {
+  font-size: 14px;
+}
+
+.puzzle-context {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.puzzle-message {
+  min-height: 22px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.puzzle-message.best,
+.puzzle-message.good {
+  color: var(--green);
+}
+
+.puzzle-message.wrong {
+  color: var(--red);
+}
+
+.puzzle-message.revealed {
+  color: var(--yellow);
+}
+
+.puzzle-message.checking {
+  color: var(--text-dim);
+}
+
+.puzzle-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* ---------- board editor ---------- */
 
 .editor {

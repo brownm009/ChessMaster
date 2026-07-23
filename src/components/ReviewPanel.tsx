@@ -5,12 +5,15 @@ import type { GameReport } from "../lib/accuracy";
 import { QUALITY_GLYPH, QUALITY_LABEL } from "../lib/classify";
 import type { MoveQuality } from "../lib/classify";
 import { uciToSan } from "../lib/notation";
+import { buildPuzzles } from "../lib/puzzles";
+import type { Puzzle } from "../lib/puzzles";
 import { useGameReview } from "../hooks/useGameReview";
 
 interface ReviewPanelProps {
   moves: Move[];
   positionFens: string[];
   onJump: (index: number) => void;
+  onTrain: (puzzles: Puzzle[]) => void;
 }
 
 const SUMMARY_ROWS: MoveQuality[] = [
@@ -30,7 +33,12 @@ function accuracyColor(acc: number): string {
   return "var(--red)";
 }
 
-export function ReviewPanel({ moves, positionFens, onJump }: ReviewPanelProps) {
+export function ReviewPanel({
+  moves,
+  positionFens,
+  onJump,
+  onTrain,
+}: ReviewPanelProps) {
   const { running, done, total, evals, run, reset } = useGameReview();
 
   const report: GameReport | null = useMemo(() => {
@@ -40,6 +48,11 @@ export function ReviewPanel({ moves, positionFens, onJump }: ReviewPanelProps) {
     );
     return buildReport(moves, evals, bestSans);
   }, [evals, moves, positionFens]);
+
+  const puzzles = useMemo<Puzzle[]>(() => {
+    if (!report || !evals) return [];
+    return buildPuzzles(report, evals, positionFens);
+  }, [report, evals, positionFens]);
 
   if (moves.length === 0) {
     return (
@@ -141,6 +154,14 @@ export function ReviewPanel({ moves, positionFens, onJump }: ReviewPanelProps) {
             </div>
           )}
 
+          {puzzles.length > 0 && (
+            <button
+              className="btn primary review-train"
+              onClick={() => onTrain(puzzles)}
+            >
+              ♟ Train these mistakes ({puzzles.length})
+            </button>
+          )}
           <button className="btn small ghost review-again" onClick={reset}>
             Close review
           </button>

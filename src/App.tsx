@@ -7,6 +7,7 @@ import { EvalBar } from "./components/EvalBar";
 import { ImportExport } from "./components/ImportExport";
 import { MoveList } from "./components/MoveList";
 import { PlayAsSelector } from "./components/PlayAsSelector";
+import { PuzzleTrainer } from "./components/PuzzleTrainer";
 import { ReviewPanel } from "./components/ReviewPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { useChessGame } from "./hooks/useChessGame";
@@ -15,6 +16,7 @@ import { useOpponent } from "./hooks/useOpponent";
 import { classifyMove, QUALITY_GLYPH, QUALITY_LABEL } from "./lib/classify";
 import type { Classification } from "./lib/classify";
 import { detectOpening } from "./lib/openings";
+import type { Puzzle } from "./lib/puzzles";
 import { DEFAULT_SETTINGS, OPPONENT_ELO, OPPONENT_LABEL } from "./types";
 import type { EvalRecord, OpponentLevel, Settings } from "./types";
 
@@ -97,6 +99,7 @@ export default function App() {
   const [manualOrientation, setManualOrientation] = useState<"white" | "black">("white");
   const [evalMap, setEvalMap] = useState<Record<string, EvalRecord>>({});
   const [editMode, setEditMode] = useState(false);
+  const [puzzles, setPuzzles] = useState<Puzzle[] | null>(null);
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -122,8 +125,9 @@ export default function App() {
     settings.showEvalBar ||
     settings.moveFeedback ||
     playerColor !== null;
+  const trainingActive = puzzles !== null;
   const { status: engineStatus, analysis } = useEngine(
-    engineNeeded && !gameOver && !editMode ? fen : null
+    engineNeeded && !gameOver && !editMode && !trainingActive ? fen : null
   );
 
   // Remember every analyzed position so past moves can be rated.
@@ -147,7 +151,7 @@ export default function App() {
   // The opponent runs on its own Stockfish instance at the chosen strength,
   // so weakening it never affects the full-strength analysis/coaching.
   const opponentMove = useOpponent(
-    engineToMove && !editMode ? fen : null,
+    engineToMove && !editMode && !trainingActive ? fen : null,
     OPPONENT_ELO[settings.opponentLevel]
   );
 
@@ -309,7 +313,14 @@ export default function App() {
         )}
 
         <section className="board-column">
-          {editMode ? (
+          {trainingActive ? (
+            <>
+              <div className="status-bar">
+                <span className="status-text">Tactics from your mistakes</span>
+              </div>
+              <PuzzleTrainer puzzles={puzzles} onExit={() => setPuzzles(null)} />
+            </>
+          ) : editMode ? (
             <>
               <div className="status-bar">
                 <span className="status-text">Set up position</span>
@@ -492,6 +503,7 @@ export default function App() {
               moves={moves}
               positionFens={positionFens}
               onJump={goTo}
+              onTrain={setPuzzles}
             />
           </div>
 
