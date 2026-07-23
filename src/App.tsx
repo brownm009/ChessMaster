@@ -5,6 +5,7 @@ import { BoardPanel } from "./components/BoardPanel";
 import { EvalBar } from "./components/EvalBar";
 import { ImportExport } from "./components/ImportExport";
 import { MoveList } from "./components/MoveList";
+import { PlayAsSelector } from "./components/PlayAsSelector";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { useChessGame } from "./hooks/useChessGame";
 import { useEngine } from "./hooks/useEngine";
@@ -103,8 +104,20 @@ export default function App() {
   );
 
   const gameOver = game.isGameOver();
+  const playerColor: "w" | "b" | null =
+    settings.playAs === "white" ? "w" : settings.playAs === "black" ? "b" : null;
+  // In play-vs-engine mode the engine only answers at the live head of the
+  // game, never while reviewing earlier moves.
+  const engineToMove =
+    playerColor !== null &&
+    !gameOver &&
+    game.turn() !== playerColor &&
+    currentIndex === moves.length;
   const engineNeeded =
-    settings.showBestMove || settings.showEvalBar || settings.moveFeedback;
+    settings.showBestMove ||
+    settings.showEvalBar ||
+    settings.moveFeedback ||
+    playerColor !== null;
   const { status: engineStatus, analysis } = useEngine(
     engineNeeded && !gameOver ? fen : null
   );
@@ -126,6 +139,19 @@ export default function App() {
       };
     });
   }, [analysis]);
+
+  // Play the engine's reply once its search for the current position finishes.
+  useEffect(() => {
+    if (!engineToMove) return;
+    if (!analysis || analysis.fen !== fen || !analysis.done || !analysis.bestUci)
+      return;
+    const uci = analysis.bestUci;
+    makeMove(
+      uci.slice(0, 2) as Square,
+      uci.slice(2, 4) as Square,
+      uci.length > 4 ? uci[4] : undefined
+    );
+  }, [engineToMove, analysis, fen, makeMove]);
 
   const getEval = useCallback(
     (positionFen: string): EvalRecord | null =>
@@ -149,10 +175,12 @@ export default function App() {
 
   const hint = useMemo(() => {
     if (!settings.showBestMove || gameOver) return null;
+    // In play-vs-engine mode, only hint on the player's own turn.
+    if (playerColor !== null && game.turn() !== playerColor) return null;
     const best = currentAnalysis?.bestUci ?? evalMap[fen]?.bestUci;
     if (!best) return null;
     return { from: best.slice(0, 2) as Square, to: best.slice(2, 4) as Square };
-  }, [settings.showBestMove, gameOver, currentAnalysis, evalMap, fen]);
+  }, [settings.showBestMove, gameOver, playerColor, game, currentAnalysis, evalMap, fen]);
 
   const hintSan = useMemo(() => {
     const best = currentAnalysis?.bestUci ?? evalMap[fen]?.bestUci;
@@ -164,11 +192,16 @@ export default function App() {
     [currentAnalysis, fen]
   );
 
-  const orientation = settings.autoFlip
-    ? game.turn() === "w"
-      ? "white"
-      : "black"
-    : manualOrientation;
+  const orientation: "white" | "black" =
+    playerColor !== null
+      ? playerColor === "w"
+        ? "white"
+        : "black"
+      : settings.autoFlip
+        ? game.turn() === "w"
+          ? "white"
+          : "black"
+        : manualOrientation;
 
   const lastMove = useMemo(() => {
     if (currentIndex === 0) return null;
@@ -177,10 +210,25 @@ export default function App() {
   }, [moves, currentIndex]);
 
   const onMove = useCallback(
-    (from: Square, to: Square, promotion?: string) =>
-      makeMove(from, to, promotion) !== null,
-    [makeMove]
+    (from: Square, to: Square, promotion?: string) => {
+      // Block moving the engine's pieces at the live head of a play-vs-engine game.
+      if (
+        playerColor !== null &&
+        currentIndex === moves.length &&
+        game.turn() !== playerColor
+      ) {
+        return false;
+      }
+      return makeMove(from, to, promotion) !== null;
+    },
+    [makeMove, playerColor, currentIndex, moves.length, game]
   );
+
+  // Whether the human is allowed to move the side to move right now.
+  const humanControlsTurn =
+    playerColor === null ||
+    currentIndex !== moves.length ||
+    game.turn() === playerColor;
 
   // Keyboard navigation like chess.com: arrows step through the game.
   useEffect(() => {
@@ -256,6 +304,9 @@ export default function App() {
           <div className="status-bar">
             <span className={`turn-dot ${game.turn() === "w" ? "white" : "black"}`} />
             <span className="status-text">{status}</span>
+            {engineToMove && !gameOver && (
+              <span className="thinking">engine thinking…</span>
+            )}
             {opening && <span className="opening-name">{opening}</span>}
           </div>
 
@@ -266,6 +317,7 @@ export default function App() {
             lastMove={lastMove}
             hint={hint}
             onMove={onMove}
+            interactive={humanControlsTurn}
           />
 
           <div className="feedback-bar">
@@ -346,6 +398,11 @@ export default function App() {
 
           <div className="panel">
             <div className="panel-title">Game</div>
+            <label className="playas-label">Play as</label>
+            <PlayAsSelector
+              value={settings.playAs}
+              onChange={(playAs) => updateSettings({ playAs })}
+            />
             <div className="game-buttons">
               <button
                 className="btn primary"
@@ -361,8 +418,14 @@ export default function App() {
                 onClick={() =>
                   setManualOrientation((o) => (o === "white" ? "black" : "white"))
                 }
-                disabled={settings.autoFlip}
-                title={settings.autoFlip ? "Disable auto-flip to flip manually" : "Flip board"}
+                disabled={settings.autoFlip || playerColor !== null}
+                title={
+                  playerColor !== null
+                    ? "Board follows your chosen colour"
+                    : settings.autoFlip
+                      ? "Disable auto-flip to flip manually"
+                      : "Flip board"
+                }
               >
                 Flip board
               </button>

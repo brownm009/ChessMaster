@@ -5,7 +5,11 @@ interface SettingsPanelProps {
   onChange: (patch: Partial<Settings>) => void;
 }
 
-const OPTIONS: { key: keyof Settings; label: string; hint: string }[] = [
+type BooleanKeys = {
+  [K in keyof Settings]: Settings[K] extends boolean ? K : never;
+}[keyof Settings];
+
+const OPTIONS: { key: BooleanKeys; label: string; hint: string }[] = [
   {
     key: "showBestMove",
     label: "Suggest best move",

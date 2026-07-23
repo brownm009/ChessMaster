@@ -171,6 +171,54 @@ button {
   text-align: right;
 }
 
+.thinking {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.thinking + .opening-name {
+  margin-left: 8px;
+}
+
+/* play-as selector */
+
+.playas-label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.playas {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.playas-btn {
+  flex: 1;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.playas-btn:hover {
+  background: #302e2b;
+}
+
+.playas-btn.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
 .feedback-bar {
   min-height: 24px;
   font-size: 14px;

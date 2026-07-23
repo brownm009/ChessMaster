@@ -1,4 +1,8 @@
+export type PlayAs = "both" | "white" | "black";
+
 export interface Settings {
+  /** Which side the user controls; the engine plays the other side ("both" = self-play simulation) */
+  playAs: PlayAs;
   /** Show the engine's suggested best move as an arrow on the board */
   showBestMove: boolean;
   /** Show the evaluation bar next to the board */
@@ -16,6 +20,7 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  playAs: "both",
   showBestMove: true,
   showEvalBar: true,
   moveFeedback: true,

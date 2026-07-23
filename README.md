@@ -9,8 +9,11 @@ needed, everything (including the engine) runs on your own machine.
 
 ## Features
 
-- **Full game simulation** — play both White and Black, with legal-move
-  validation, castling, en passant, promotions, check/checkmate/draw detection.
+- **Choose your side** — play as White, as Black, or control both sides
+  (self-play). When you pick a colour, Stockfish automatically plays the other
+  side and the board orients to your colour, like "Play vs Computer".
+- **Full game simulation** — legal-move validation, castling, en passant,
+  promotions, check/checkmate/draw detection.
 - **Best-move suggestions** — toggle an engine arrow that shows Stockfish's
   best move for the side to move (plus the move in notation and the full
   engine line in the sidebar).

@@ -11,6 +11,8 @@ interface BoardPanelProps {
   lastMove: { from: Square; to: Square } | null;
   hint: { from: Square; to: Square } | null;
   onMove: (from: Square, to: Square, promotion?: string) => boolean;
+  /** When false, the human cannot pick up or move pieces (engine's turn). */
+  interactive: boolean;
 }
 
 const HIGHLIGHT = { backgroundColor: "rgba(255, 255, 51, 0.45)" };
@@ -43,6 +45,7 @@ export function BoardPanel({
   lastMove,
   hint,
   onMove,
+  interactive,
 }: BoardPanelProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [boardWidth, setBoardWidth] = useState(560);
@@ -70,6 +73,11 @@ export function BoardPanel({
       window.removeEventListener("resize", update);
     };
   }, []);
+
+  // Clear a pending selection when control is taken away (engine's turn).
+  useEffect(() => {
+    if (!interactive) setSelected(null);
+  }, [interactive]);
 
   const fen = game.fen();
   const legalMoves = useMemo(
@@ -103,7 +111,7 @@ export function BoardPanel({
   };
 
   const onSquareClick = (square: Square) => {
-    if (pendingPromotion) return;
+    if (pendingPromotion || !interactive) return;
     if (selected) {
       if (square === selected) {
         setSelected(null);
@@ -147,8 +155,8 @@ export function BoardPanel({
         boardOrientation={orientation}
         animationDuration={150}
         showBoardNotation={settings.showCoordinates}
-        arePiecesDraggable
-        isDraggablePiece={({ piece }) => piece[0] === game.turn()}
+        arePiecesDraggable={interactive}
+        isDraggablePiece={({ piece }) => interactive && piece[0] === game.turn()}
         onPieceDrop={(from, to) => tryMove(from as Square, to as Square)}
         onSquareClick={(square) => onSquareClick(square as Square)}
         onPromotionPieceSelect={(piece, from, to) =>
