@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Chess } from "chess.js";
 import type { Square } from "chess.js";
+import { BoardEditor } from "./components/BoardEditor";
 import { BoardPanel } from "./components/BoardPanel";
 import { EvalBar } from "./components/EvalBar";
 import { ImportExport } from "./components/ImportExport";
 import { MoveList } from "./components/MoveList";
 import { PlayAsSelector } from "./components/PlayAsSelector";
+import { ReviewPanel } from "./components/ReviewPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { useChessGame } from "./hooks/useChessGame";
 import { useEngine } from "./hooks/useEngine";
@@ -94,6 +96,7 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(loadSettings);
   const [manualOrientation, setManualOrientation] = useState<"white" | "black">("white");
   const [evalMap, setEvalMap] = useState<Record<string, EvalRecord>>({});
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
@@ -120,7 +123,7 @@ export default function App() {
     settings.moveFeedback ||
     playerColor !== null;
   const { status: engineStatus, analysis } = useEngine(
-    engineNeeded && !gameOver ? fen : null
+    engineNeeded && !gameOver && !editMode ? fen : null
   );
 
   // Remember every analyzed position so past moves can be rated.
@@ -144,7 +147,7 @@ export default function App() {
   // The opponent runs on its own Stockfish instance at the chosen strength,
   // so weakening it never affects the full-strength analysis/coaching.
   const opponentMove = useOpponent(
-    engineToMove ? fen : null,
+    engineToMove && !editMode ? fen : null,
     OPPONENT_ELO[settings.opponentLevel]
   );
 
@@ -306,47 +309,67 @@ export default function App() {
         )}
 
         <section className="board-column">
-          <div className="status-bar">
-            <span className={`turn-dot ${game.turn() === "w" ? "white" : "black"}`} />
-            <span className="status-text">{status}</span>
-            {engineToMove && !gameOver && (
-              <span className="thinking">engine thinking…</span>
-            )}
-            {opening && <span className="opening-name">{opening}</span>}
-          </div>
-
-          <BoardPanel
-            game={game}
-            orientation={orientation}
-            settings={settings}
-            lastMove={lastMove}
-            hint={hint}
-            onMove={onMove}
-            interactive={humanControlsTurn}
-          />
-
-          <div className="feedback-bar">
-            {settings.moveFeedback && lastClassification && lastMoveSan ? (
-              <span className={`feedback q-${lastClassification.quality}`}>
-                <b>
-                  {lastMoveSan} {QUALITY_GLYPH[lastClassification.quality]}
-                </b>{" "}
-                {QUALITY_LABEL[lastClassification.quality]}
-                {lastBestSan && (
-                  <>
-                    {" "}
-                    — best was <b>{lastBestSan}</b>
-                  </>
+          {editMode ? (
+            <>
+              <div className="status-bar">
+                <span className="status-text">Set up position</span>
+              </div>
+              <BoardEditor
+                initialGame={game}
+                orientation={orientation}
+                onCancel={() => setEditMode(false)}
+                onApply={(newFen) => {
+                  loadFen(newFen);
+                  setEvalMap({});
+                  setEditMode(false);
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <div className="status-bar">
+                <span className={`turn-dot ${game.turn() === "w" ? "white" : "black"}`} />
+                <span className="status-text">{status}</span>
+                {engineToMove && !gameOver && (
+                  <span className="thinking">engine thinking…</span>
                 )}
-              </span>
-            ) : (
-              <span className="feedback muted">
-                {settings.moveFeedback
-                  ? "Play a move to get feedback."
-                  : "Move feedback is off."}
-              </span>
-            )}
-          </div>
+                {opening && <span className="opening-name">{opening}</span>}
+              </div>
+
+              <BoardPanel
+                game={game}
+                orientation={orientation}
+                settings={settings}
+                lastMove={lastMove}
+                hint={hint}
+                onMove={onMove}
+                interactive={humanControlsTurn}
+              />
+
+              <div className="feedback-bar">
+                {settings.moveFeedback && lastClassification && lastMoveSan ? (
+                  <span className={`feedback q-${lastClassification.quality}`}>
+                    <b>
+                      {lastMoveSan} {QUALITY_GLYPH[lastClassification.quality]}
+                    </b>{" "}
+                    {QUALITY_LABEL[lastClassification.quality]}
+                    {lastBestSan && (
+                      <>
+                        {" "}
+                        — best was <b>{lastBestSan}</b>
+                      </>
+                    )}
+                  </span>
+                ) : (
+                  <span className="feedback muted">
+                    {settings.moveFeedback
+                      ? "Play a move to get feedback."
+                      : "Move feedback is off."}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
         </section>
 
         <aside className="sidebar">
@@ -453,7 +476,23 @@ export default function App() {
                 Flip board
               </button>
             </div>
+            <button
+              className="btn setup-btn"
+              onClick={() => setEditMode(true)}
+              disabled={editMode}
+            >
+              ♟ Set up position
+            </button>
             <ImportExport fen={fen} pgn={pgn} onLoadFen={loadFen} onLoadPgn={loadPgn} />
+          </div>
+
+          <div className="panel">
+            <div className="panel-title">Review</div>
+            <ReviewPanel
+              moves={moves}
+              positionFens={positionFens}
+              onJump={goTo}
+            />
           </div>
 
           <div className="panel">

@@ -602,6 +602,239 @@ button {
   left: 20px;
 }
 
+.setup-btn {
+  width: 100%;
+  background: #3c3a36;
+  margin-bottom: 10px;
+}
+
+/* ---------- game review ---------- */
+
+.review-run {
+  width: 100%;
+}
+
+.review-progress {
+  height: 6px;
+  background: var(--panel-2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.review-progress-bar {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.2s;
+}
+
+.acc-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.acc-cell {
+  flex: 1;
+  background: var(--panel-2);
+  border-radius: 6px;
+  padding: 8px;
+  text-align: center;
+}
+
+.acc-side {
+  display: block;
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.acc-value {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.acc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+.acc-table td {
+  padding: 3px 6px;
+  font-size: 13px;
+}
+
+.acc-w,
+.acc-b {
+  width: 28px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.acc-label {
+  text-align: center;
+  font-weight: 600;
+}
+
+.critical {
+  border-top: 1px solid var(--panel-2);
+  padding-top: 8px;
+}
+
+.critical-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.critical-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text);
+  padding: 5px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+}
+
+.critical-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.critical-move {
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.critical-drop {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.critical-best {
+  margin-left: auto;
+  color: var(--green);
+  font-size: 12px;
+}
+
+.review-again {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* ---------- board editor ---------- */
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.editor-hint {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.palette-row {
+  display: flex;
+  gap: 4px;
+}
+
+.palette-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.palette-btn.light {
+  color: #f4f4f4;
+  text-shadow: 0 0 2px #000, 0 0 1px #000;
+}
+
+.palette-btn.dark {
+  color: #111;
+}
+
+.palette-btn.active {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px var(--green);
+}
+
+.palette-btn.erase {
+  width: auto;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.editor-options {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.editor-label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.castle-boxes {
+  display: flex;
+  gap: 10px;
+}
+
+.castle-box {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.editor-error {
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.editor-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 1000px) {

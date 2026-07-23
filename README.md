@@ -25,6 +25,13 @@ needed, everything (including the engine) runs on your own machine.
 - **Move feedback** — every move you play is rated like on chess.com:
   ★ Best, ! Excellent, ✓ Good, ?! Inaccuracy, ? Mistake, ?? Blunder — with
   "best was …" shown for bad moves, so you learn from every mistake.
+- **Game Review** — analyze the whole game with one click: accuracy % for
+  each side, a breakdown of move quality, and clickable "key moments" that
+  jump to your biggest mistakes with the move you should have played.
+- **Position setup / board editor** — click "Set up position" to place pieces
+  freely (piece palette, eraser, side to move, castling rights), then "Lock in
+  & play" to continue a normal game from that position — with suggestions,
+  feedback and the engine opponent, exactly as usual.
 - **Evaluation bar** — live Stockfish evaluation next to the board.
 - **Opening recognition** — the name of the opening you're playing is shown
   above the board (Ruy López, Sicilian Najdorf, London System, …).
