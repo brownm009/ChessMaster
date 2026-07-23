@@ -12,6 +12,11 @@ needed, everything (including the engine) runs on your own machine.
 - **Choose your side** — play as White, as Black, or control both sides
   (self-play). When you pick a colour, Stockfish automatically plays the other
   side and the board orients to your colour, like "Play vs Computer".
+- **Adjustable opponent strength** — when playing against the engine, pick a
+  level from Beginner (~1350) up to Maximum (full strength). The opponent runs
+  on its own engine instance, so weakening it never weakens the coaching:
+  best-move hints, the eval bar and move feedback always use full-strength
+  Stockfish.
 - **Full game simulation** — legal-move validation, castling, en passant,
   promotions, check/checkmate/draw detection.
 - **Best-move suggestions** — toggle an engine arrow that shows Stockfish's

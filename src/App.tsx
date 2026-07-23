@@ -9,11 +9,12 @@ import { PlayAsSelector } from "./components/PlayAsSelector";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { useChessGame } from "./hooks/useChessGame";
 import { useEngine } from "./hooks/useEngine";
+import { useOpponent } from "./hooks/useOpponent";
 import { classifyMove, QUALITY_GLYPH, QUALITY_LABEL } from "./lib/classify";
 import type { Classification } from "./lib/classify";
 import { detectOpening } from "./lib/openings";
-import { DEFAULT_SETTINGS } from "./types";
-import type { EvalRecord, Settings } from "./types";
+import { DEFAULT_SETTINGS, OPPONENT_ELO, OPPONENT_LABEL } from "./types";
+import type { EvalRecord, OpponentLevel, Settings } from "./types";
 
 const SETTINGS_KEY = "chessmaster-settings";
 /** Minimum depth before an eval is trusted for move feedback. */
@@ -140,18 +141,22 @@ export default function App() {
     });
   }, [analysis]);
 
-  // Play the engine's reply once its search for the current position finishes.
+  // The opponent runs on its own Stockfish instance at the chosen strength,
+  // so weakening it never affects the full-strength analysis/coaching.
+  const opponentMove = useOpponent(
+    engineToMove ? fen : null,
+    OPPONENT_ELO[settings.opponentLevel]
+  );
+
   useEffect(() => {
-    if (!engineToMove) return;
-    if (!analysis || analysis.fen !== fen || !analysis.done || !analysis.bestUci)
-      return;
-    const uci = analysis.bestUci;
+    if (!engineToMove || !opponentMove || opponentMove.fen !== fen) return;
+    const uci = opponentMove.uci;
     makeMove(
       uci.slice(0, 2) as Square,
       uci.slice(2, 4) as Square,
       uci.length > 4 ? uci[4] : undefined
     );
-  }, [engineToMove, analysis, fen, makeMove]);
+  }, [engineToMove, opponentMove, fen, makeMove]);
 
   const getEval = useCallback(
     (positionFen: string): EvalRecord | null =>
@@ -403,6 +408,24 @@ export default function App() {
               value={settings.playAs}
               onChange={(playAs) => updateSettings({ playAs })}
             />
+            {playerColor !== null && (
+              <label className="strength-row">
+                <span className="playas-label">Engine strength</span>
+                <select
+                  className="strength-select"
+                  value={settings.opponentLevel}
+                  onChange={(e) =>
+                    updateSettings({ opponentLevel: e.target.value as OpponentLevel })
+                  }
+                >
+                  {(Object.keys(OPPONENT_LABEL) as OpponentLevel[]).map((lvl) => (
+                    <option key={lvl} value={lvl}>
+                      {OPPONENT_LABEL[lvl]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <div className="game-buttons">
               <button
                 className="btn primary"

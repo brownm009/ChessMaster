@@ -219,6 +219,27 @@ button {
   color: #fff;
 }
 
+.strength-row {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.strength-select {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.strength-select:focus {
+  outline: 1px solid var(--green);
+}
+
 .feedback-bar {
   min-height: 24px;
   font-size: 14px;
